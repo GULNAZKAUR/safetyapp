@@ -8,6 +8,7 @@
         android:title="Change Password"/>
     <item
         android:id="@+id/m3"
+        android:onClick="user_logout"
         android:title="Logout"/>
 
 </menu>

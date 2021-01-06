@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -12,6 +13,7 @@ import com.squareup.picasso.Picasso;
 public class ViewUserDetails extends AppCompatActivity {
     TextView tv1,tv2,tv3;
     ImageView imv1;
+    String phone;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,13 +25,20 @@ public class ViewUserDetails extends AppCompatActivity {
         imv1=findViewById(R.id.imv1);
         Intent in  = getIntent();
         String name = in.getStringExtra("name");
-        String phone = in.getStringExtra("phone");
+       phone  = in.getStringExtra("phone");
         String status = in.getStringExtra("status");
         String photo = in.getStringExtra("photo");
         tv1.setText(name);
         tv2.setText(phone);
         tv3.setText(status);
         Picasso.get().load(photo).into(imv1);
+
+    }
+    public void go(View v)
+    {
+        Intent intent = new Intent(this,DisplayPhotos.class);
+        intent.putExtra("user_in_emergency",phone);
+        startActivity(intent);
 
     }
 }
