@@ -91,15 +91,17 @@ ad = new myadapter();
         mainref.child(usermobileno).child("favourite_contacts").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                al.clear();
-                arraylist.clear();
-                for (DataSnapshot  sin : snapshot.getChildren()){
-                    al.add(sin.getValue(String.class));
-                }
+               if(snapshot.exists()){
+                   al.clear();
+                   arraylist.clear();
+                   for (DataSnapshot  sin : snapshot.getChildren()){
+                       al.add(sin.getValue(String.class));
+                   }
 //                ad.notifyDataSetChanged();
-                Toast.makeText(getContext(), "SIZE"+al.size(), Toast.LENGTH_SHORT).show();
-                fetch_userdata();
+                   Toast.makeText(getContext(), "SIZE"+al.size(), Toast.LENGTH_SHORT).show();
+                   fetch_userdata();
 
+               }
             }
 
             @Override

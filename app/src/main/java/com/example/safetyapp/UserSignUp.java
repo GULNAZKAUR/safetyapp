@@ -22,10 +22,16 @@ import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 
 import java.io.ByteArrayOutputStream;
@@ -43,6 +49,7 @@ public class UserSignUp extends AppCompatActivity {
     String type = "";
     String filenametobeuploaded;
     String tempfilepath;
+    StorageReference mainref2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +65,9 @@ public class UserSignUp extends AppCompatActivity {
         imv1=findViewById(R.id.imv1);
         rbmale=findViewById(R.id.rbmale);
         rbfemale=findViewById(R.id.rbfemale);
+        FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
+        mainref2 = firebaseStorage.getReference("userimages");
+
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         mainref = firebaseDatabase.getReference("users");
         Intent in = getIntent();
@@ -84,21 +94,102 @@ public class UserSignUp extends AppCompatActivity {
             Toast.makeText(this, "Password and confirm password should match", Toast.LENGTH_SHORT).show();
         }
          else {
-             user_details obj = new user_details(name,phonenumber,password,gender,"https://i.pinimg.com/originals/af/4c/57/af4c571f547a74ae7a0dbda30a79c509.jpg");
+
+            if (type.equals("gallery")) {
+
+                // gallery upload
+                File localfile = new File(getRealPathFromURI(GalleryUri)); // 'localfile' variable will store the selected image's real path as it is in 'gallery'
+
+                String local2 = "temp" + (int) (Math.random() * 1000000000) + localfile.getName(); // this will store the image picked from gallery with a unique name in firebase
+                Uri uri2 = Uri.fromFile(localfile);
+                final StorageReference newfile = mainref2.child(local2); // this is used to shorten the reference to: mainref2.child(local2)
+                final UploadTask uploadTask = newfile.putFile(uri2); //  this will actually upload the image.
+                uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        Task<Uri> uriTask = newfile.getDownloadUrl(); // In case of multiple uploads 'Task' identifies each image.
+                        uriTask.addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+//                                save_record();
+                                String downloadpath = uri.toString();
+                                user_details obj = new user_details(name,phonenumber,password,gender,downloadpath);
 
 
-                 mainref.child(phonenumber).setValue(obj);
-                 //Saving phone number of user who logged in inside local memory.
-            SharedPreferences sharedPreferences = getSharedPreferences("myapp", MODE_PRIVATE);
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString("mobileno", phonenumber);
-            editor.apply();
+                                mainref.child(phonenumber).setValue(obj);
+                                //Saving phone number of user who logged in inside local memory.
+                                SharedPreferences sharedPreferences = getSharedPreferences("myapp", MODE_PRIVATE);
+                                SharedPreferences.Editor editor = sharedPreferences.edit();
+                                editor.putString("mobileno", phonenumber);
+                                editor.apply();
 
-            Toast.makeText(this, "Signup Success", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext(), "Signup Success", Toast.LENGTH_SHORT).show();
 
-            Intent in = new Intent(getApplicationContext(),User_Home.class);
-            startActivity(in);
-            finish();
+                                Intent in = new Intent(getApplicationContext(),User_Home.class);
+                                in.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+                                startActivity(in);
+                                finish();
+
+                            }
+                        });
+                        uploadTask.addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+
+                            }
+                        });
+
+                    }
+                });
+            }
+            else {
+                File localfile = new File(getRealPathFromURI(getImageUri(getApplicationContext(), CameraBitmap)));// bitmap is now converted into Uri.
+
+                String local2 = "temp" + (int) (Math.random() * 1000000000) + localfile.getName();
+                Uri uri2 = Uri.fromFile(localfile);
+                final StorageReference newfile = mainref2.child(local2);
+                final UploadTask uploadTask = newfile.putFile(uri2);
+                uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        Task<Uri> uriTask = newfile.getDownloadUrl(); // this uriTask is generated when upload is successful.
+
+                        uriTask.addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                String downloadpath = uri.toString();
+                                user_details obj = new user_details(name,phonenumber,password,gender,downloadpath);
+
+                                  // Now we are setting values on Firebase
+                                mainref.child(phonenumber).setValue(obj);
+                                //Saving phone number of user who logged in inside local memory.
+                                SharedPreferences sharedPreferences = getSharedPreferences("myapp", MODE_PRIVATE);
+                                SharedPreferences.Editor editor = sharedPreferences.edit();
+                                editor.putString("mobileno", phonenumber);
+                                editor.apply();
+
+                                Toast.makeText(getApplicationContext(), "Signup Success", Toast.LENGTH_SHORT).show();
+
+                                Intent in = new Intent(getApplicationContext(),User_Home.class);
+                                in.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+                                startActivity(in);
+                                finish();
+                            }
+                        });
+                        uploadTask.addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+
+                            }
+                        });
+
+                    }
+                });
+
+
+            }
 
         }
 
