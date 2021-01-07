@@ -59,15 +59,16 @@ public class MyService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d("MYMSG",intent.getAction());
         if (intent.getAction().trim().equals("EMERGENCY SITUATION") && runningflag == false) {
             try {
                 SharedPreferences sp1 = getSharedPreferences("myapp", MODE_PRIVATE);
                 String no = sp1.getString("mobileno", "");
+//                Toast.makeText(this, "...."+no, Toast.LENGTH_SHORT).show();
                 runningflag = true;
+                // The following line will put entry in firebase showing Emergency:ON
                 DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference("users").child(no).child("emergency");
                 dbRef.setValue("ON");
-//            gettoken("+917009741717","Hello This is app notification");
-//            gettoken("+917009074928","Hello This is app notification");
                 FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
                 //record audio
 //                new Thread(new AudioRecord()).start();
@@ -82,7 +83,7 @@ public class MyService extends Service {
 
                 SharedPreferences sp = getSharedPreferences("myapp", MODE_PRIVATE);
                 SharedPreferences.Editor editor = sp.edit();
-                editor.putString("Emergency", "ON");
+                editor.putString("Emergency", "ON"); // This will locally store that Emergency has been On.
 
                 editor.putString("lockStatus", "lock");
                 editor.commit();
@@ -124,8 +125,10 @@ public class MyService extends Service {
 
         return super.onStartCommand(intent, flags, startId);
     }
+
+    //This will build the notification message in notification area.
     public Notification simpleNotification(String title, String message, boolean sound) {
-        String CHANNEL_ID = "CHANNEL222";
+        String CHANNEL_ID = "CHANNEL222"; // This assigns a unique ID to notification.
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID);
 
