@@ -48,6 +48,9 @@ ImageView imv11;
 //                    Intent in = new Intent(getContext(), MyService.class);
 //                    in.setAction("EMERGENCY SITUATION");
 //                    getContext().startService(in);
+//                    Intent in = new Intent(getContext(), MyService.class);
+//                    in.setAction("STOP EMERGENCY SITUATION");
+//                    getContext().startService(in);
 
                 }
                 catch (Exception e){

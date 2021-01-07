@@ -6,8 +6,6 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -16,10 +14,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.SafetyApp">
-        <activity android:name=".ViewPhotos"></activity>
-        <activity android:name=".DisplayPhotos" />
-        <activity android:name=".User_Login" />
-        <activity android:name=".authenticationScreen" />
+        <activity android:name=".authenticationScreen"></activity>
         <activity android:name=".ViewUserDetails" />
         <activity android:name=".MainActivity" />
         <activity
@@ -29,8 +24,7 @@
             android:name=".User_Home"
             android:theme="@style/MyTheme" />
         <activity android:name=".UserSignUp" />
-        <activity android:name=".SplashScreen"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+        <activity android:name=".SplashScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
