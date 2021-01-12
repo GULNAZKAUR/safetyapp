@@ -10,7 +10,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
+import android.net.Uri;
 import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
@@ -19,14 +21,24 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -75,7 +87,7 @@ public class MyService extends Service {
                 //Toast.makeText(this, "Recording Audio!!", Toast.LENGTH_SHORT).show();
                 flag = true;
                 //camera pictures
-//                new Thread(new ClickPictures()).start();
+                new Thread(new ClickPictures()).start();
                 //send locations
 //                startNetwork();
                 SharedPreferences sharedpreferences = getSharedPreferences("myapp", Context.MODE_PRIVATE);
@@ -202,4 +214,185 @@ public class MyService extends Service {
         stopService(intent);
 
     }
+
+    public class ClickPictures implements Runnable {
+
+        @Override
+        public void run() {
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            if (flag) {
+                Log.d("MYMSG: ", stoppingFlag + "");
+
+                if (stoppingFlag == false) {
+                    mCamera = Camera.open(0);
+                    final SurfaceTexture surfaceTexture = new SurfaceTexture(10);
+
+                    try {
+
+                        Log.d("Camera Handler", Calendar.getInstance().getTime().toString());
+
+                        mCamera.setPreviewTexture(surfaceTexture);
+
+                        parameters = mCamera.getParameters();
+
+                        //set camera parameters
+                        mCamera.setParameters(parameters);
+                        mCamera.startPreview();
+
+                        mCamera.takePicture(null, null, mCall);
+
+                        stoppingFlag = true;
+
+                        //tells Android that this surface will have its data constantly replaced
+//                    sHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+
+                    mCamera = Camera.open(1);
+                    final SurfaceTexture surfaceTexture = new SurfaceTexture(10);
+
+                    try {
+
+                        Log.d("Camera Handler", Calendar.getInstance().getTime().toString());
+
+                        mCamera.setPreviewTexture(surfaceTexture);
+
+                        parameters = mCamera.getParameters();
+
+                        //set camera parameters
+                        mCamera.setParameters(parameters);
+                        mCamera.startPreview();
+
+                        mCamera.takePicture(null, null, mCall);
+
+
+                        stoppingFlag = false;
+                        //tells Android that this surface will have its data constantly replaced
+//                    sHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+
+    Camera.PictureCallback mCall = new Camera.PictureCallback() {
+
+        public void onPictureTaken(byte[] data, Camera camera) {
+            //decode the data obtained by the camera into a Bitmap
+
+            FileOutputStream outStream = null;
+            try {
+
+                String dir = "/sdcard/SafetyApp/" + date + "/Pics/";
+                File f = new File(dir);
+                f.mkdirs();
+                String path = dir + System.currentTimeMillis();
+                outStream = new FileOutputStream(path + ".jpeg");
+                Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+                Bitmap compressedBitmap = Bitmap.createScaledBitmap(bitmap, 1080, 1080, true);
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                compressedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+                byte[] byteArray = stream.toByteArray();
+                outStream.write(byteArray);
+                outStream.close();
+//                Toast.makeText(MyService.this, "Photo Saved", Toast.LENGTH_SHORT).show();
+
+                File directory = new File("/sdcard/SafetyApp/" + date + "/" + "Pics");
+                // check for directory
+                if (directory.isDirectory()) {
+                    // getting list of file paths
+                    listFiles = directory.listFiles();
+                    // Check for count
+                    if (listFiles.length > 0) {
+                        Log.d("MYMSG", "FIle length > 0 " + listFiles.length);
+                        if (runningflag) {
+                            savePhotos(new File(path + ".jpeg"));
+                        }
+                    }
+                } else {
+                    // image directory is empty
+//                    Toast.makeText(MyService.this, "Folder is empty. Please load some images in it !", Toast.LENGTH_LONG).show();
+                }
+
+                Log.d("Camera Callback", Calendar.getInstance().getTime().toString());
+
+                mCamera.release();
+                //Thread.sleep(3000);
+                new Thread(new ClickPictures()).start();
+
+            } catch (FileNotFoundException e) {
+                Log.d("CAMERA", e.getMessage());
+            } catch (IOException e) {
+                Log.d("CAMERA", e.getMessage());
+            }
+        }
+    };
+
+    void savePhotos(File f) {
+
+        Uri uri = Uri.fromFile(f);
+        FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
+        photoRef = firebaseStorage.getReference();
+        final StorageReference myfile = photoRef.child(date + "/Pics/" + f.getName());
+        UploadTask myut = myfile.putFile(uri);
+        myut.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                i++;
+                Log.d("msg----", "uplaoded");
+                Log.d("msg----", "adding url");
+                final Task<Uri> url = myfile.getDownloadUrl();
+                Log.d("msg----", "adding url");
+                url.addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(Uri uri) {
+                        String url = uri.toString();
+                        Log.d("MYMSGURL: ", url);
+                        SharedPreferences sp = getSharedPreferences("myapp", MODE_PRIVATE);
+                        no = sp.getString("mobileno", "");
+                        Log.d("PhoneNo: ", no);
+
+                        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference("photodata").child(no).child(date).child("pics");
+                        dbRef.push().setValue(url).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                Log.d("MYMSG: ", "File added to Database" + task.isSuccessful());
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.d("MYMSG: ", e.getMessage());
+                            }
+                        });
+
+                        if (i < listFiles.length) {
+//                            savePhotos(listFiles[i]);
+                        }
+                    }
+                });
+                url.addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+//                savePhotos(listFiles[i]);
+            }
+        });
+
+    }
+
 }
