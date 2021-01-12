@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,51 +11,55 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.GridView;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
-public class ViewPhotos extends AppCompatActivity {
-    GridView lv1;
-    ArrayList<String> arrayList;
-   myadapter ad;
-   DatabaseReference mainref;
+public class Recording_data extends AppCompatActivity {
+    ArrayList<String> al;
+    DatabaseReference mainref;
+    String user_in_emergency_mobileno,current_date;
+
+ myadapter ad;
+    ListView lv1;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_view_photos);
-        lv1 = findViewById(R.id.lv1);
-        arrayList = new ArrayList<>();
-        Intent intent1 = getIntent();
-       String current_date= intent1.getStringExtra("current_date");
-       String mobile_in_emergency = intent1.getStringExtra("user_in_emergency_mobileno");
+        setContentView(R.layout.activity_recording_data);
 
-        ad = new myadapter();
-        lv1.setAdapter(ad);
+        lv1 = findViewById(R.id.lv1);
+        al = new ArrayList<>();
+        Intent in = getIntent();
+        user_in_emergency_mobileno = in.getStringExtra("user_in_emergency_mobileno");
+        current_date = in.getStringExtra("current_date");
+        Toast.makeText(this, "", Toast.LENGTH_SHORT).show();
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         mainref = firebaseDatabase.getReference("photodata");
+        ad = new myadapter();
+        lv1.setAdapter(ad);
 
-        mainref.child(mobile_in_emergency).child(current_date).child("pics").addValueEventListener(new ValueEventListener() {
+        mainref.child(user_in_emergency_mobileno).child(current_date).child("audio").addValueEventListener(new ValueEventListener() {
 
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Log.d("MyMSG",snapshot.toString());
-                for (DataSnapshot sin : snapshot.getChildren()) {
-                    arrayList.add(sin.getValue(String.class));
-
+                Log.d("MyMSG123",snapshot.toString());
+               if(snapshot.exists()){
+                    for (DataSnapshot sin : snapshot.getChildren()) {
+                        al.add(sin.getValue(String.class));
+                    }
+                   Toast.makeText(Recording_data.this, ""+al.size(), Toast.LENGTH_SHORT).show();
+                    ad.notifyDataSetChanged();
                 }
-                ad.notifyDataSetChanged();
             }
 
             @Override
@@ -64,29 +67,20 @@ public class ViewPhotos extends AppCompatActivity {
 
             }
         });
-        lv1.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(getApplicationContext(),ViewImage.class);
-                intent.putExtra("picId", arrayList.get(position));
-                startActivity(intent);
-            }
-        });
-
 
     }
-     class myadapter extends BaseAdapter
+    class myadapter extends BaseAdapter
     {
         @Override
         public int getCount()
         {
-            return arrayList.size();
+            return al.size();
         }
 
         @Override
         public Object getItem(int position)
         {
-            return arrayList.get(position);
+            return al.get(position);
         }
 
         @Override
@@ -100,14 +94,14 @@ public class ViewPhotos extends AppCompatActivity {
         {
             // Inflate XML (Single Row) refer it as convertView in Java
             LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-            convertView = inflater.inflate(R.layout.rowofphotos, parent, false);
+            convertView = inflater.inflate(R.layout.recordings_design, parent, false);
 
             // get course object from al
-            String obj = arrayList.get(position);
+            String obj = al.get(position);
 
-            ImageView imv_view_pics = convertView.findViewById(R.id.imv1);
+            TextView tv_view_dates = convertView.findViewById(R.id.tv_view_dates);
 
-            Picasso.get().load(obj).into(imv_view_pics);
+            tv_view_dates.setText("Recording "+position);
 
 
             return convertView;

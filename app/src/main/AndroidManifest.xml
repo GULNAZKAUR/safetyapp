@@ -6,7 +6,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
         android:allowBackup="true"
@@ -15,15 +15,21 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.SafetyApp">
+        <activity android:name=".View_Recording"></activity>
+        <activity android:name=".DisplayPhotos"></activity>
+        <activity android:name=".ViewPhotos"></activity>
+        <activity android:name=".Recording_data" />
+        <activity android:name=".ViewImage"
+            android:theme="@style/Theme.AppCompat.Light.Dialog"/>
+
         <service
             android:name=".MyService2"
             android:enabled="true"
-            android:exported="true"></service>
-
+            android:exported="true" />
         <service
             android:name=".MyService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
 
         <activity android:name=".authenticationScreen" />
         <activity android:name=".ViewUserDetails" />
