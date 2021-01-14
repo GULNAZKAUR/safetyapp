@@ -48,7 +48,7 @@ public class Recording_data extends AppCompatActivity {
         ad = new myadapter();
         lv1.setAdapter(ad);
 
-        mainref.child(user_in_emergency_mobileno).child(current_date).child("audio").addValueEventListener(new ValueEventListener() {
+        mainref.child(user_in_emergency_mobileno).child(current_date).child("audios").addValueEventListener(new ValueEventListener() {
 
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {

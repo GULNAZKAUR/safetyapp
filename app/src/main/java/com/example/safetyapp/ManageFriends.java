@@ -2,6 +2,7 @@ package com.example.safetyapp;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -98,7 +99,7 @@ ad = new myadapter();
                        al.add(sin.getValue(String.class));
                    }
 //                ad.notifyDataSetChanged();
-                   Toast.makeText(getContext(), "SIZE"+al.size(), Toast.LENGTH_SHORT).show();
+//                   Toast.makeText(getContext(), "SIZE"+al.size(), Toast.LENGTH_SHORT).show();
                    fetch_userdata();
 
                }
@@ -134,7 +135,7 @@ ad = new myadapter();
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent)
+        public View getView( int position, View convertView, ViewGroup parent)
         {
             // Inflate XML (Single Row) refer it as convertView in Java
             LayoutInflater inflater = LayoutInflater.from(parent.getContext());
@@ -149,6 +150,29 @@ ad = new myadapter();
             LinearLayout lvmanage_frds = convertView.findViewById(R.id.lvmanage_frds);
             tv111.setText(obj.getName());
             Picasso.get().load(obj.getUserpic()).into(imv111);
+            mainref.child(al.get(position)).child("emergency").addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if(snapshot.exists()){
+                        String abc  = snapshot.getValue(String.class);
+                        Toast.makeText(getContext(), ""+abc, Toast.LENGTH_SHORT).show();
+                        if(abc.equals("ON")){
+                            lvmanage_frds.setBackgroundColor(Color.RED);
+                            arraylist.get(position).setEmergency("ON");
+                        }
+                        else {
+                            lvmanage_frds.setBackgroundColor(Color.WHITE);
+                            arraylist.get(position).setEmergency("OFF");
+                        }
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
+
             imv222.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -165,7 +189,7 @@ ad = new myadapter();
                     Intent intent = new Intent(getContext(), ViewUserDetails.class);
                     intent.putExtra("name",obj.getName()+"");
                     intent.putExtra("phone",obj.getPhoneno()+"");
-                    intent.putExtra("status","OFF");
+                    intent.putExtra("status",obj.getEmergency()+"");
                     intent.putExtra("photo",obj.getUserpic()+"");
 
                 startActivity(intent);

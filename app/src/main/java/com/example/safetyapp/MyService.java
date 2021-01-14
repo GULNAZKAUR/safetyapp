@@ -435,7 +435,7 @@ public class MyService extends Service {
                 mediaRecorder.release();
                 mediaRecorder = null;
 
-                File direc = new File("/sdcard/SafetyApp/" + date + "/" + "Audio");
+                File direc = new File("/sdcard/SafetyApp/" + date + "/" + "Audio"); // Retrieving audio files from local memory
                 // check for directory
                 if (direc.isDirectory()) {
                     // getting list of file paths

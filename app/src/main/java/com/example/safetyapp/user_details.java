@@ -1,7 +1,7 @@
 package com.example.safetyapp;
 
 public class user_details {
-    String name,phoneno,password,gender,userpic="";
+    String name,phoneno,password,gender,userpic="",emergency = "OFF";
 
     public user_details(String name, String phoneno, String password, String gender, String userpic) {
         this.name = name;
@@ -52,5 +52,13 @@ public class user_details {
 
     public void setUserpic(String userpic) {
         this.userpic = userpic;
+    }
+
+    public String getEmergency() {
+        return emergency;
+    }
+
+    public void setEmergency(String emergency) {
+        this.emergency = emergency;
     }
 }

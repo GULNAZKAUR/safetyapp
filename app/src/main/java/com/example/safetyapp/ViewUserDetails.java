@@ -54,9 +54,14 @@ public class ViewUserDetails extends AppCompatActivity {
 //    }
     public void go1(View v)
     {
-        Intent intent  = new Intent(this,View_Recording.class);
-        intent.putExtra("user_in_emergency", phone);
+//        Intent intent  = new Intent(this,View_Recording.class);
+//        intent.putExtra("user_in_emergency", phone);
+//        startActivity(intent);
+
+        Intent intent  = new Intent(this,MapsActivity.class);
         startActivity(intent);
+
+
     }
 
 
