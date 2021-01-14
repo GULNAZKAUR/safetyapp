@@ -11,6 +11,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.view.WindowManager;
 import android.view.animation.Animation;
@@ -19,6 +20,7 @@ import android.widget.ImageView;
 
 public class SplashScreen extends AppCompatActivity {
     ImageView imv1;
+    TextView tv1;
     Animation top, buttom;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,7 +31,7 @@ public class SplashScreen extends AppCompatActivity {
 
         startPermission();
 
-
+         tv1=findViewById(R.id.tv1);
         imv1 = findViewById(R.id.imv1);
         top = AnimationUtils.loadAnimation(this, R.anim.top);
         buttom = AnimationUtils.loadAnimation(this, R.anim.buttom);

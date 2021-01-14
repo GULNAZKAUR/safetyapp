@@ -1,24 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="#00BCD4"
+
     tools:context=".Emergency">
 
 
-    <TextView
-        android:id="@+id/tv11"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="Emergency Fragment" />
+
     <ImageView
-        android:layout_gravity="center"
         android:id="@+id/imv11"
         android:layout_width="250dp"
         android:src="@drawable/abc_vector_test"
         android:layout_height="250dp"/>
+    <ImageView
+        android:id="@+id/imv22"
+        android:layout_width="250dp"
+        android:src="@drawable/ic_baseline_delete_forever_24"
+        android:layout_height="250dp"/>
 
-</FrameLayout>
+</LinearLayout>

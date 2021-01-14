@@ -15,6 +15,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.SafetyApp">
+        <activity android:name=".User_Login"></activity>
         <activity android:name=".View_Recording"></activity>
         <activity android:name=".DisplayPhotos"></activity>
         <activity android:name=".ViewPhotos"></activity>

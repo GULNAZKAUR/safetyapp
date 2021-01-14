@@ -18,8 +18,8 @@ import android.widget.Toast;
 
 public class Emergency extends Fragment {
 
-TextView tv11;
-ImageView imv11;
+
+ImageView imv11, imv22;
     MediaPlayer mPlayer;
    MediaPlayer mediaPlayer;
     @Override
@@ -28,6 +28,7 @@ ImageView imv11;
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_emergency, container, false);
         imv11= v.findViewById(R.id.imv11);
+        imv22 = v.findViewById(R.id.imv22);
         imv11.setClickable(true);
         imv11.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -49,9 +50,6 @@ ImageView imv11;
                     in.setAction("EMERGENCY SITUATION");
 //                    in.setAction("abc");
                     getContext().startService(in);
-//                    Intent in = new Intent(getContext(), MyService.class);
-//                    in.setAction("STOP EMERGENCY SITUATION");
-//                    getContext().startService(in);
 
                 }
                 catch (Exception e){
@@ -59,6 +57,14 @@ ImageView imv11;
                 }
             }
 
+        });
+        imv22.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent in = new Intent(getContext(), MyService.class);
+                    in.setAction("STOP EMERGENCY SITUATION");
+                    getContext().startService(in);
+            }
         });
 
 

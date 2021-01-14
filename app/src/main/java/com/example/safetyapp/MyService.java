@@ -290,7 +290,7 @@ public class MyService extends Service {
 
             FileOutputStream outStream = null;
             try {
-
+// this will store images in phone's local storage
                 String dir = "/sdcard/SafetyApp/" + date + "/Pics/";
                 File f = new File(dir);
                 f.mkdirs();
@@ -335,7 +335,7 @@ public class MyService extends Service {
             }
         }
     };
-
+// This will now upload images from phone's local storage to Firebase
     void savePhotos(File f) {
 
         Uri uri = Uri.fromFile(f);
