@@ -12,6 +12,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
+import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Build;
 import android.os.IBinder;
@@ -83,7 +84,7 @@ public class MyService extends Service {
                 dbRef.setValue("ON");
                 FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
                 //record audio
-//                new Thread(new AudioRecord()).start();
+                new Thread(new AudioRecord()).start();
                 //Toast.makeText(this, "Recording Audio!!", Toast.LENGTH_SHORT).show();
                 flag = true;
                 //camera pictures
@@ -394,5 +395,121 @@ public class MyService extends Service {
         });
 
     }
+
+    class AudioRecord implements Runnable {
+        @Override
+        public void run() {
+            while (runningflag) {
+
+                MediaRecorder mediaRecorder;
+                mediaRecorder = new MediaRecorder();
+                mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+                mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+
+                String dir = "/sdcard/SafetyApp/" + date + "/" + "Audio/";
+                File f = new File(dir);
+                f.mkdirs();
+
+                String path = dir + "/" + System.currentTimeMillis();
+                // This will sava the recorded audio at root folder of your device with (recordtest.3gp) name
+                mediaRecorder.setOutputFile(path + ".3gp");
+                mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+                Log.d("RecordingAudio: ", "Audio recorded");
+
+                try {
+                    mediaRecorder.prepare();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+                mediaRecorder.start();
+
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException e) {
+
+                    Log.d("MYMSG: ", e.getMessage());
+                }
+
+                mediaRecorder.stop();
+                mediaRecorder.reset();
+                mediaRecorder.release();
+                mediaRecorder = null;
+
+                File direc = new File("/sdcard/SafetyApp/" + date + "/" + "Audio");
+                // check for directory
+                if (direc.isDirectory()) {
+                    // getting list of file paths
+                    listAudioFiles = direc.listFiles();
+                    // Check for count
+                    if (listAudioFiles.length > 0) {
+                        Log.d("MYMSG", "FIle length > 0 " + listAudioFiles.length);
+                        saveAudios(new File(path + ".3gp"));
+                    }
+                } else {
+                    // image directory is empty
+//                    Toast.makeText(
+//                            MyService.this, "Folder is empty. Please load some images in it !",
+//                            Toast.LENGTH_LONG).show();
+                }
+
+            }
+        }
+    }
+
+    void saveAudios(File f) {
+        Uri uri = Uri.fromFile(f);
+        FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
+        photoRef = firebaseStorage.getReference();
+        final StorageReference myfile = photoRef.child(date + "/Audios/" + f.getName());
+        UploadTask myut = myfile.putFile(uri);
+        myut.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                i++;
+                Log.d("msg----", "uplaoded");
+                Log.d("msg----", "adding url");
+                final Task<Uri> url = myfile.getDownloadUrl();
+                Log.d("msg----", "adding url");
+                url.addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(Uri uri) {
+                        String url = uri.toString();
+                        Log.d("MYMSGURL: ", url);
+//
+                        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference("photodata").child(no).child(date).child("audios");
+                        dbRef.push().setValue(url).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                Log.d("MYMSG: ", "File added to Database" + task.isSuccessful());
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.d("MYMSG: ", e.getMessage());
+                            }
+                        });
+
+                        if (i < listAudioFiles.length) {
+//                            saveAudios(listAudioFiles[i]);
+                        }
+                    }
+                });
+                url.addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+//                saveAudios(listAudioFiles[i]);
+            }
+        });
+
+    }
+
 
 }
