@@ -1,6 +1,6 @@
 package com.example.safetyapp;
 
-public class user_details {
+public class user_details  {
     String name,phoneno,password,gender,userpic="",emergency = "OFF";
 
     public user_details(String name, String phoneno, String password, String gender, String userpic) {
@@ -61,4 +61,6 @@ public class user_details {
     public void setEmergency(String emergency) {
         this.emergency = emergency;
     }
+
+
 }

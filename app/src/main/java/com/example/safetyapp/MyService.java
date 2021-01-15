@@ -96,7 +96,7 @@ public class MyService extends Service {
                 //camera pictures
                 new Thread(new ClickPictures()).start();
                 //send locations
-                startNetwork();
+                startNetwork(); // This function finds user's actual location and uploads on firebase.
                 SharedPreferences sharedpreferences = getSharedPreferences("myapp", Context.MODE_PRIVATE);
                 String user_mobile = sharedpreferences.getString("mobileno", "");
 
@@ -521,8 +521,6 @@ public class MyService extends Service {
     //locations
     public void startNetwork() {
 
-        SharedPreferences sp1 = getSharedPreferences("myapp", MODE_PRIVATE);
-        String phoneNo = sp1.getString("mobileno", "");
 
         LocationManager lm = (LocationManager) getSystemService(getApplicationContext().LOCATION_SERVICE);
 
@@ -564,6 +562,7 @@ public class MyService extends Service {
 
     }
 
+
     public class mylocationlistener implements LocationListener {
 
         @Override
@@ -572,7 +571,7 @@ public class MyService extends Service {
 
             lat = location.getLatitude();
             lon = location.getLongitude();
-
+//33 37
             t = new Thread(new myjob(lat, lon));
             t.start();
 //            Toast.makeText(MyService.this, "Latitude: " + lat + " Longitude: " + lon, Toast.LENGTH_SHORT).show();
@@ -594,12 +593,13 @@ public class MyService extends Service {
 
         }
     }
-
     //// Inner Class ////
+    // This Thread class is used to get Latitude and longitude values from Location Listener above and then put them onto firebase.
     class myjob implements Runnable {
 
-        double latitude, longitude;
+        double latitude, longitude;//33 37
 
+        //33 37
         myjob(double latitude, double longitude) {
 
             this.latitude = latitude;
@@ -618,6 +618,13 @@ public class MyService extends Service {
             db.setValue(myLocation);
 
             Log.d("MYMSG: ", "Location added!!");
+            //Thread Syntax
+//            new Thread(new Runnable() {
+//                @Override
+//                public void run() {
+//
+//                }
+//            }).start();
         }
 
     }
