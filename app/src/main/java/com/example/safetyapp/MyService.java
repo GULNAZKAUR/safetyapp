@@ -12,10 +12,15 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.IBinder;
+import android.provider.Settings;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -42,6 +47,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 public class MyService extends Service {
     boolean runningflag;
@@ -90,7 +96,7 @@ public class MyService extends Service {
                 //camera pictures
                 new Thread(new ClickPictures()).start();
                 //send locations
-//                startNetwork();
+                startNetwork();
                 SharedPreferences sharedpreferences = getSharedPreferences("myapp", Context.MODE_PRIVATE);
                 String user_mobile = sharedpreferences.getString("mobileno", "");
 
@@ -510,6 +516,112 @@ public class MyService extends Service {
         });
 
     }
+
+
+    //locations
+    public void startNetwork() {
+
+        SharedPreferences sp1 = getSharedPreferences("myapp", MODE_PRIVATE);
+        String phoneNo = sp1.getString("mobileno", "");
+
+        LocationManager lm = (LocationManager) getSystemService(getApplicationContext().LOCATION_SERVICE);
+
+        Location lastlcgps = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        Location lastlcnw = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+
+        if (lastlcgps == null) {
+            Log.d("LASTGPS", "last gps not available");
+        } else {
+            Log.d("LASTGPS1", "last gps location available" + lastlcgps.getLatitude() + "," + lastlcgps.getLongitude());
+        }
+        if (lastlcnw == null) {
+            Log.d("LASTNW", "last nw location not available");
+        } else {
+            Log.d("LASTNW1", "last nw location " + lastlcnw.getLatitude() + "," + lastlcnw.getLongitude());
+        }
+        //check if GPPS_PROVIDER is enabled
+        boolean gpsstatus = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+
+        //check if NETWORK_PROVIDER os enavbled
+        boolean networkstatus = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+
+        //int flag=0;
+        //check which provider is enabled
+        mylocationlistener ml = new mylocationlistener();
+        if (gpsstatus == false && networkstatus == false) {
+//            Toast.makeText(MyService.this, "Both GPS and Network are enabled", Toast.LENGTH_SHORT).show();
+            Intent in = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            startActivity(in);
+        }
+        if (gpsstatus == true) {
+//            Toast.makeText(MyService.this, "GPS is enabled ,using it", Toast.LENGTH_SHORT).show();
+            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, ml);
+        }
+        if (networkstatus == true) {
+//            Toast.makeText(MyService.this, "Network location is enabled,using it", Toast.LENGTH_SHORT).show();
+            lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, ml);
+        }
+
+    }
+
+    public class mylocationlistener implements LocationListener {
+
+        @Override
+        public void onLocationChanged(Location location) {
+
+
+            lat = location.getLatitude();
+            lon = location.getLongitude();
+
+            t = new Thread(new myjob(lat, lon));
+            t.start();
+//            Toast.makeText(MyService.this, "Latitude: " + lat + " Longitude: " + lon, Toast.LENGTH_SHORT).show();
+
+        }
+
+        @Override
+        public void onStatusChanged(String s, int i, Bundle bundle) {
+
+        }
+
+        @Override
+        public void onProviderEnabled(String s) {
+
+        }
+
+        @Override
+        public void onProviderDisabled(String s) {
+
+        }
+    }
+
+    //// Inner Class ////
+    class myjob implements Runnable {
+
+        double latitude, longitude;
+
+        myjob(double latitude, double longitude) {
+
+            this.latitude = latitude;
+            this.longitude = longitude;
+        }
+
+        @Override
+        public void run() {
+
+            SharedPreferences sp = getSharedPreferences("myapp", MODE_PRIVATE);
+            no = sp.getString("mobileno", "");
+            Log.d("PhoneNo: ", no);
+
+            DatabaseReference db = FirebaseDatabase.getInstance().getReference("users").child(no).child("Location");
+            MyLocation myLocation = new MyLocation(latitude, longitude);
+            db.setValue(myLocation);
+
+            Log.d("MYMSG: ", "Location added!!");
+        }
+
+    }
+
 
 
 }
