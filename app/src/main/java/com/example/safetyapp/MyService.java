@@ -680,7 +680,7 @@ public class MyService extends Service {
         final String cloudserverip = "server1.vmm.education";
 
 //        final String serverkey = "AAAAtmftrxQ:APA91bEWv8Q6J8nWAhd5xXZuTPjwCtwrr3YOpJWo6QXjf9Z_mFCbVPyb0gEtwuLdMarQs_RN0_nNGkCKfNad7p4GQlUmr03931QKxv2dBzs8tFWRxjrDZJdqZQyIsPbFm02yEKPg5v5R\n";
-        final String serverkey = "AAAAqv7ge7c:APA91bF1-EZGgeCMFeS47WCA46IeQKKqrA4nOcF8G7b6--Weec71ZD3rlzW8iBqDYLJ6roECazO22npCk-HsW9KgdqNshVnIUDemBOF0PB054NFaQmnvqmMfxe_0nV5WJ7fz7ml-YbCD";
+        final String serverkey = "AAAAmTC7xSA:APA91bEBXG2XW52GEe99l6AE54ESvYD8xRsRubgdsOpDx4g4cLw60PCLG4KUYh82FjZx-W6D_eOxQiXQqBFStgTEZ2ktxyU9PMMOmIZqn6MWT-v4wG16aYNo4G34H6wAOkZkV2lGAgn-";
         String url = "http://" + cloudserverip + "/VMMCloudMessaging/SendSimpleNotificationUsingTokens";
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
