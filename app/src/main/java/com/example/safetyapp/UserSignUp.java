@@ -78,7 +78,7 @@ public class UserSignUp extends AppCompatActivity {
         rbfemale=findViewById(R.id.rbfemale);
         FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
         mainref2 = firebaseStorage.getReference("userimages");
-        FirebaseInstanceId.getInstance().getInstanceId()
+        FirebaseInstanceId.getInstance().getInstanceId() //Retrieving device's Token
                 .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
                     @Override
                     public void onComplete(@NonNull Task<InstanceIdResult> task) {
@@ -89,7 +89,7 @@ public class UserSignUp extends AppCompatActivity {
                             return;
                         }
                         token = task.getResult().getToken();
-                        //      Toast.makeText(user_signup.this, ""+token, Toast.LENGTH_SHORT).show();
+                              Toast.makeText(UserSignUp.this, ""+token, Toast.LENGTH_SHORT).show();
                         System.out.println(token);
 
 
@@ -141,7 +141,7 @@ public class UserSignUp extends AppCompatActivity {
                         uriTask.addOnSuccessListener(new OnSuccessListener<Uri>() {
                             @Override
                             public void onSuccess(Uri uri) {
-//                                save_record();
+                                save_record();
                                 String downloadpath = uri.toString();
                                 user_details obj = new user_details(name,phonenumber,password,gender,downloadpath);
 
@@ -188,6 +188,7 @@ public class UserSignUp extends AppCompatActivity {
                         uriTask.addOnSuccessListener(new OnSuccessListener<Uri>() {
                             @Override
                             public void onSuccess(Uri uri) {
+                                save_record();
                                 String downloadpath = uri.toString();
                                 user_details obj = new user_details(name,phonenumber,password,gender,downloadpath);
 
