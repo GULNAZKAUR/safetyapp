@@ -22,6 +22,13 @@ import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -29,6 +36,8 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -43,13 +52,15 @@ public class UserSignUp extends AppCompatActivity {
     EditText et1,et2,et3,et4;
     ImageView imv1;
     RadioButton rbmale, rbfemale;
-    DatabaseReference mainref;
+    DatabaseReference mainref,tokenref;
     Uri GalleryUri = null;
     Bitmap CameraBitmap = null;
     String type = "";
     String filenametobeuploaded;
     String tempfilepath;
     StorageReference mainref2;
+    String token;
+    String phoneNumber;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,12 +78,31 @@ public class UserSignUp extends AppCompatActivity {
         rbfemale=findViewById(R.id.rbfemale);
         FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
         mainref2 = firebaseStorage.getReference("userimages");
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                        if (!task.isSuccessful()) {
+                            //             Toast.makeText(user_signup.this, ""+task.getException(), Toast.LENGTH_SHORT).show();
+                            Log.w("TAG", "getInstanceId failed", task.getException());
 
+                            return;
+                        }
+                        token = task.getResult().getToken();
+                        //      Toast.makeText(user_signup.this, ""+token, Toast.LENGTH_SHORT).show();
+                        System.out.println(token);
+
+
+
+                    }
+                });
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         mainref = firebaseDatabase.getReference("users");
+        tokenref = firebaseDatabase.getReference("tokenrecords");
+
         Intent in = getIntent();
         //This phone number is being received from Authentication screen
-        String phoneNumber = in.getStringExtra("phoneNumber");
+       phoneNumber = in.getStringExtra("phoneNumber");
         et2.setText(phoneNumber);
         et2.setEnabled(false);
 
@@ -254,6 +284,36 @@ public class UserSignUp extends AppCompatActivity {
         inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
         String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
         return Uri.parse(path);
+    }
+    public void save_record(){
+//        Toast.makeText(this, "Reached", Toast.LENGTH_SHORT).show();
+        TokenRecord obj = new TokenRecord(token);
+        tokenref.child(phoneNumber).setValue(obj);
+
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+
+        String packagenameofapp = getPackageName();
+        String cloudserverip = "server1.vmm.education";
+
+        String url="http://"+ cloudserverip +"/VMMCloudMessaging/RecordDeviceInfo?devicetoken="+token+"&packagenameofapp="+packagenameofapp +"&mobileno="  + phoneNumber;
+
+        StringRequest stringRequest = new StringRequest(  Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+                        Log.d("MYMESSAGE", "RESPONSE "+response);
+//                        Toast.makeText(user_signup.this, ""+response, Toast.LENGTH_SHORT).show();
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d("MYMESSAGE", error.toString());
+                    }
+                }  );
+        requestQueue.add(stringRequest);
     }
 
 }
