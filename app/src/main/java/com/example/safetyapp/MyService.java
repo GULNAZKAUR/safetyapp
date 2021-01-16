@@ -27,6 +27,12 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -48,6 +54,8 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MyService extends Service {
     boolean runningflag;
@@ -89,6 +97,43 @@ public class MyService extends Service {
                 DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference("users").child(no).child("emergency");
                 dbRef.setValue("ON");
                 FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+                fav_ref = firebaseDatabase.getReference("users").child(no).child("fav_contacts");
+                token_ref = firebaseDatabase.getReference("tokenrecords");
+                fav_ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (snapshot.exists()) {
+                            for (DataSnapshot sin : snapshot.getChildren()) {
+                                // Toast.makeText(MyService.this, ""+sin.getValue(String.class), Toast.LENGTH_SHORT).show();
+                                Log.d("MYMESSAGE", "RESPONSE " + sin.getValue(String.class));
+                                token_ref.child(sin.getValue(String.class)).child("devicetoken").addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot snapshot1) {
+                                        if (snapshot1.exists()) {
+                                            String device_token = snapshot1.getValue(String.class);
+                                            // Toast.makeText(MyService.this, ""+device_token, Toast.LENGTH_SHORT).show();
+                                            Log.d("MYMESSAGE", "RESPONSE " + device_token);
+
+//                                        gettoken(sin.getValue(String.class),"Hello This is app notification + "+sin.getValue(String.class));
+                                            SendNotification("Your Friend is in Emergency. " + no, device_token);
+                                        }
+
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError error) {
+
+                                    }
+                                });
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
                 //record audio
                 new Thread(new AudioRecord()).start();
                 //Toast.makeText(this, "Recording Audio!!", Toast.LENGTH_SHORT).show();
@@ -629,6 +674,42 @@ public class MyService extends Service {
 
     }
 
+    private void SendNotification(final String message, final String devicetoken) {
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+
+        final String cloudserverip = "server1.vmm.education";
+
+//        final String serverkey = "AAAAtmftrxQ:APA91bEWv8Q6J8nWAhd5xXZuTPjwCtwrr3YOpJWo6QXjf9Z_mFCbVPyb0gEtwuLdMarQs_RN0_nNGkCKfNad7p4GQlUmr03931QKxv2dBzs8tFWRxjrDZJdqZQyIsPbFm02yEKPg5v5R\n";
+        final String serverkey = "AAAAqv7ge7c:APA91bF1-EZGgeCMFeS47WCA46IeQKKqrA4nOcF8G7b6--Weec71ZD3rlzW8iBqDYLJ6roECazO22npCk-HsW9KgdqNshVnIUDemBOF0PB054NFaQmnvqmMfxe_0nV5WJ7fz7ml-YbCD";
+        String url = "http://" + cloudserverip + "/VMMCloudMessaging/SendSimpleNotificationUsingTokens";
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+                        Log.d("MYMESSAGE", "RESPONSE " + response);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d("MYMESSAGE", error.toString());
+                    }
+                }) {
+            protected Map<String, String> getParams() {
+                Map<String, String> MyData = new HashMap<String, String>();
+                MyData.put("serverkey", serverkey);
+                MyData.put("tokens", devicetoken);
+                MyData.put("title", "Emergency");
+                MyData.put("message", message);
+                return MyData;
+            }
+        };
+
+
+        requestQueue.add(stringRequest);
+    }
 
 
 }
