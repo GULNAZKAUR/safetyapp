@@ -80,6 +80,19 @@ public class User_Home extends AppCompatActivity {
                 finish();
     }
 
+    public void user_share(MenuItem item) {
+        /*Create an ACTION_SEND Intent*/
+        Intent intent = new Intent(android.content.Intent.ACTION_SEND);
+        /*This will be the actual content you wish you share.*/
+        String shareBody = "Download the app now \n https://firebasestorage.googleapis.com/v0/b/safetyapp-253d1.appspot.com/o/app-release.apk?alt=media&token=a80f5685-cf09-4c4d-aac5-4a96325d5455";
+        /*The type of the content is text, obviously.*/
+        intent.setType("text/plain");
+        /*Applying information Subject and Body.*/
+         intent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
+        /*Fire!*/
+        startActivity(Intent.createChooser(intent, shareBody));
+    }
+
     class mypageradapter extends FragmentPagerAdapter
     {
 
@@ -111,7 +124,7 @@ public class User_Home extends AppCompatActivity {
             else if(position==1)
                 return "Manage Friends";
             else
-                return "Profile";
+                return "Chnage Password";
         }
     }
     ////////////////

@@ -97,22 +97,22 @@ public class MyService extends Service {
                 DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference("users").child(no).child("emergency");
                 dbRef.setValue("ON");
                 FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
-                fav_ref = firebaseDatabase.getReference("users").child(no).child("fav_contacts");
+                fav_ref = firebaseDatabase.getReference("users").child(no).child("favourite_contacts");
                 token_ref = firebaseDatabase.getReference("tokenrecords");
                 fav_ref.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         if (snapshot.exists()) {
                             for (DataSnapshot sin : snapshot.getChildren()) {
-                                // Toast.makeText(MyService.this, ""+sin.getValue(String.class), Toast.LENGTH_SHORT).show();
-                                Log.d("MYMESSAGE", "RESPONSE " + sin.getValue(String.class));
+                                 Toast.makeText(MyService.this, ""+sin.getValue(String.class), Toast.LENGTH_SHORT).show();
+                                Log.d("MYMESSAGE123", "RESPONSE " + sin.getValue(String.class));
                                 token_ref.child(sin.getValue(String.class)).child("devicetoken").addListenerForSingleValueEvent(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(@NonNull DataSnapshot snapshot1) {
                                         if (snapshot1.exists()) {
                                             String device_token = snapshot1.getValue(String.class);
                                             // Toast.makeText(MyService.this, ""+device_token, Toast.LENGTH_SHORT).show();
-                                            Log.d("MYMESSAGE", "RESPONSE " + device_token);
+                                            Log.d("MYMESSAGE123", "RESPONSE " + device_token);
 
 //                                        gettoken(sin.getValue(String.class),"Hello This is app notification + "+sin.getValue(String.class));
                                             SendNotification("Your Friend is in Emergency. " + no, device_token);
@@ -126,6 +126,8 @@ public class MyService extends Service {
                                     }
                                 });
                             }
+                        }else {
+                            Toast.makeText(MyService.this, "NO........", Toast.LENGTH_SHORT).show();
                         }
                     }
 

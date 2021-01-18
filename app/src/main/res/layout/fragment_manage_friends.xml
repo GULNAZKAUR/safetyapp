@@ -13,9 +13,11 @@
     <Button
         android:id="@+id/bt1"
         android:text="Add Friends"
-
+        android:background="@drawable/btn_bg_selector"
+android:textColor="@color/white"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"/>
     <ListView
         android:id="@+id/lv1"
         android:layout_width="match_parent"

@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,6 +13,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,15 +25,17 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class Recording_data extends AppCompatActivity {
     ArrayList<String> al;
     DatabaseReference mainref;
-    String user_in_emergency_mobileno,current_date;
+    String user_in_emergency_mobileno, current_date;
 
- myadapter ad;
+    myadapter ad;
     ListView lv1;
+    MediaPlayer mediaPlayer;
 
 
     @Override
@@ -52,12 +58,12 @@ public class Recording_data extends AppCompatActivity {
 
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Log.d("MyMSG123",snapshot.toString());
-               if(snapshot.exists()){
+                Log.d("MyMSG123", snapshot.toString());
+                if (snapshot.exists()) {
                     for (DataSnapshot sin : snapshot.getChildren()) {
                         al.add(sin.getValue(String.class));
                     }
-                   Toast.makeText(Recording_data.this, ""+al.size(), Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(Recording_data.this, "" + al.size(), Toast.LENGTH_SHORT).show();
                     ad.notifyDataSetChanged();
                 }
             }
@@ -69,29 +75,25 @@ public class Recording_data extends AppCompatActivity {
         });
 
     }
-    class myadapter extends BaseAdapter
-    {
+
+    class myadapter extends BaseAdapter {
         @Override
-        public int getCount()
-        {
+        public int getCount() {
             return al.size();
         }
 
         @Override
-        public Object getItem(int position)
-        {
+        public Object getItem(int position) {
             return al.get(position);
         }
 
         @Override
-        public long getItemId(int position)
-        {
+        public long getItemId(int position) {
             return (position);
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent)
-        {
+        public View getView(int position, View convertView, ViewGroup parent) {
             // Inflate XML (Single Row) refer it as convertView in Java
             LayoutInflater inflater = LayoutInflater.from(parent.getContext());
             convertView = inflater.inflate(R.layout.recordings_design, parent, false);
@@ -100,8 +102,34 @@ public class Recording_data extends AppCompatActivity {
             String obj = al.get(position);
 
             TextView tv_view_dates = convertView.findViewById(R.id.tv_view_dates);
+            ImageView bt11 = convertView.findViewById(R.id.bt11);
+int pos = position;
+            tv_view_dates.setText("Recording " + (pos+1));
 
-            tv_view_dates.setText("Recording "+position);
+            bt11.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mediaPlayer = new MediaPlayer();
+                    mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                    try {
+                        bt11.setVisibility(View.GONE);
+                        mediaPlayer.setDataSource(obj);
+                        mediaPlayer.prepare();
+                        mediaPlayer.start();
+//                        Toast.makeText(Recording_data.this, "PLaying Audio", Toast.LENGTH_SHORT).show();
+                        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                            @Override
+                            public void onCompletion(MediaPlayer mediaPlayer) {
+                                bt11.setVisibility(View.VISIBLE);
+                            }
+                        });
+
+                    } catch (IOException e) {
+                        Toast.makeText(Recording_data.this, "Error is " + e, Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+
 
 
             return convertView;

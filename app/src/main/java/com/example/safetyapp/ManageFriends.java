@@ -155,7 +155,6 @@ ad = new myadapter();
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     if(snapshot.exists()){
                         String abc  = snapshot.getValue(String.class);
-                        Toast.makeText(getContext(), ""+abc, Toast.LENGTH_SHORT).show();
                         if(abc.equals("ON")){
                             lvmanage_frds.setBackgroundColor(Color.RED);
                             arraylist.get(position).setEmergency("ON");

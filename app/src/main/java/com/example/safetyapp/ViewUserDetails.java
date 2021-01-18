@@ -55,15 +55,10 @@ public class ViewUserDetails extends AppCompatActivity {
 //    }
     public void go1(View v)
     {
-//        Intent intent  = new Intent(this,View_Recording.class);
-//        intent.putExtra("user_in_emergency", phone);
-//        startActivity(intent);
-
-        Intent intent  = new Intent(this,MapsActivity.class);
-        intent.putExtra("mobile",phone+"");
-        intent.putExtra("pic",photo+"");
-        intent.putExtra("name",name+"");
+        Intent intent  = new Intent(this,View_Recording.class);
+        intent.putExtra("user_in_emergency", phone);
         startActivity(intent);
+
 
 
     }
@@ -76,4 +71,12 @@ public class ViewUserDetails extends AppCompatActivity {
     }
 
 
+    public void view_user_location(View view) {
+        Intent intent  = new Intent(this,MapsActivity.class);
+        intent.putExtra("mobile",phone+"");
+        intent.putExtra("pic",photo+"");
+        intent.putExtra("name",name+"");
+        startActivity(intent);
+
+    }
 }

@@ -33,7 +33,7 @@ ImageView imv11, imv22;
         imv11.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getContext(),"Clicked",Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getContext(),"Clicked",Toast.LENGTH_SHORT).show();
 
                 mPlayer = new MediaPlayer();
 
@@ -41,10 +41,10 @@ ImageView imv11, imv22;
                 mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
                 try{
                     //following 2 lines of code aim to maximise the vol of audio being played even if phone's vol is set low.
-//                    AudioManager audioManager = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
-//                    audioManager.setStreamVolume (AudioManager.STREAM_MUSIC, audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC),0);
-//                    mediaPlayer  = MediaPlayer.create(getContext(), R.raw.police_siren);
-//                    mediaPlayer.start(); // no need to call prepare(); create() does that for you
+                    AudioManager audioManager = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
+                    audioManager.setStreamVolume (AudioManager.STREAM_MUSIC, audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC),0);
+                    mediaPlayer  = MediaPlayer.create(getContext(), R.raw.police_siren);
+                    mediaPlayer.start(); // no need to call prepare(); create() does that for you
 
                     Intent in = new Intent(getContext(), MyService.class);
                     in.setAction("EMERGENCY SITUATION");
@@ -64,6 +64,12 @@ ImageView imv11, imv22;
                 Intent in = new Intent(getContext(), MyService.class);
                     in.setAction("STOP EMERGENCY SITUATION");
                     getContext().startService(in);
+                    try{
+                        mediaPlayer.stop();
+                    }
+                    catch (Exception e){
+                        e.printStackTrace();
+                    }
             }
         });
 

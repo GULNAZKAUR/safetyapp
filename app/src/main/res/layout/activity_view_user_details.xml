@@ -10,21 +10,25 @@
 
     <ImageView
         android:id="@+id/imv1"
+        android:layout_gravity="center"
         android:layout_width="250dp"
         android:layout_height="250dp"/>
     <TextView
         android:id="@+id/tv1"
         android:textSize="22dp"
+        android:layout_gravity="center"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
     <TextView
         android:id="@+id/tv2"
         android:textSize="22dp"
+        android:layout_gravity="center"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
     <TextView
         android:id="@+id/tv3"
         android:textSize="22dp"
+        android:layout_gravity="center"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
     <Button
@@ -35,6 +39,7 @@
     <Button
         android:id="@+id/bt2"
         android:text="View Location"
+        android:onClick="view_user_location"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
